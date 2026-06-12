@@ -6,6 +6,7 @@ import {
   PaintbrushIcon,
   RocketIcon,
   SparklesIcon,
+  StarIcon,
   TerminalIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -15,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookingLookupCard } from "@/features/booking/booking-lookup-card";
 import { getDefaultEventTypeSlug, getDefaultUsername } from "@/lib/cal-api/env";
+import { formatStarCount, getRepoStars } from "@/lib/github";
 
 const REPO_URL = "https://github.com/calcom/platform-starter";
 const FORK_URL = `${REPO_URL}/fork`;
@@ -49,12 +51,13 @@ function GitHubIcon({ className }: { className?: string }) {
   );
 }
 
-export default function HomePage() {
+export default async function HomePage() {
   const username = getDefaultUsername();
   const eventSlug = getDefaultEventTypeSlug();
   const bookerHref = username
     ? `/book/${username}/${eventSlug}`
     : `/book/your-username/${eventSlug}`;
+  const stars = await getRepoStars();
 
   return (
     <main className="relative">
@@ -82,12 +85,23 @@ export default function HomePage() {
               <ArrowRightIcon />
             </Link>
           </Button>
-          <Button asChild size="lg" variant="ghost" className="h-11 px-6 text-sm">
-            <a href={REPO_URL} target="_blank" rel="noreferrer">
+          <a
+            href={REPO_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="group inline-flex h-11 items-stretch overflow-hidden rounded-md border border-input bg-background text-sm font-medium shadow-sm transition-colors hover:border-foreground/30"
+          >
+            <span className="inline-flex items-center gap-2 px-5 transition-colors group-hover:bg-accent">
               <GitHubIcon className="size-4" />
-              View on GitHub
-            </a>
-          </Button>
+              Star on GitHub
+            </span>
+            {stars !== null ? (
+              <span className="inline-flex items-center gap-1.5 border-l border-input bg-muted/40 px-4 tabular-nums text-foreground/80 transition-colors group-hover:bg-muted/70">
+                <StarIcon className="size-3.5 fill-current text-amber-500" />
+                {formatStarCount(stars)}
+              </span>
+            ) : null}
+          </a>
         </div>
 
         <dl className="mt-16 grid w-full max-w-3xl grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">

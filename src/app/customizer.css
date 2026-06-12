@@ -5,48 +5,51 @@
  * [data-primary|radius|font] on <html>. Each preset is a session-only override —
  * to make a choice permanent, copy the snippet from the "Export" panel of the
  * customizer into globals.css.
+ *
+ * Selectors are prefixed with :root (or .dark) so they win the cascade against
+ * the base :root tokens defined in globals.css regardless of import order.
  */
 
 /* Brand color — light mode */
-[data-primary="blue"] {
+:root[data-primary="blue"] {
   --primary: oklch(0.55 0.2 252);
   --ring: oklch(0.55 0.2 252);
 }
-[data-primary="violet"] {
+:root[data-primary="violet"] {
   --primary: oklch(0.55 0.22 295);
   --ring: oklch(0.55 0.22 295);
 }
-[data-primary="pink"] {
+:root[data-primary="pink"] {
   --primary: oklch(0.6 0.22 5);
   --ring: oklch(0.6 0.22 5);
 }
-[data-primary="green"] {
+:root[data-primary="green"] {
   --primary: oklch(0.55 0.18 145);
   --ring: oklch(0.55 0.18 145);
 }
-[data-primary="orange"] {
+:root[data-primary="orange"] {
   --primary: oklch(0.65 0.19 50);
   --ring: oklch(0.65 0.19 50);
 }
 
 /* Brand color — dark mode */
-.dark[data-primary="blue"] {
+:root.dark[data-primary="blue"] {
   --primary: oklch(0.72 0.16 252);
   --primary-foreground: oklch(0.15 0 0);
 }
-.dark[data-primary="violet"] {
+:root.dark[data-primary="violet"] {
   --primary: oklch(0.74 0.17 295);
   --primary-foreground: oklch(0.15 0 0);
 }
-.dark[data-primary="pink"] {
+:root.dark[data-primary="pink"] {
   --primary: oklch(0.76 0.18 5);
   --primary-foreground: oklch(0.15 0 0);
 }
-.dark[data-primary="green"] {
+:root.dark[data-primary="green"] {
   --primary: oklch(0.78 0.16 145);
   --primary-foreground: oklch(0.15 0 0);
 }
-.dark[data-primary="orange"] {
+:root.dark[data-primary="orange"] {
   --primary: oklch(0.82 0.16 60);
   --primary-foreground: oklch(0.15 0 0);
 }
@@ -57,15 +60,15 @@
 :root {
   --calendar-day-radius: 9999px;
 }
-[data-radius="sharp"] {
+:root[data-radius="sharp"] {
   --radius: 0.125rem;
   --calendar-day-radius: 4px;
 }
-[data-radius="default"] {
+:root[data-radius="default"] {
   --radius: 0.625rem;
   --calendar-day-radius: 10px;
 }
-[data-radius="rounded"] {
+:root[data-radius="rounded"] {
   --radius: 1rem;
   --calendar-day-radius: 9999px;
 }
@@ -75,15 +78,15 @@
 }
 
 /* Typeface */
-[data-font="inter"] {
+:root[data-font="inter"] {
   --font-sans: var(--font-inter);
   --font-heading: var(--font-inter);
 }
-[data-font="geist"] {
+:root[data-font="geist"] {
   --font-sans: var(--font-geist);
   --font-heading: var(--font-geist);
 }
-[data-font="system"] {
+:root[data-font="system"] {
   --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
   --font-heading: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
