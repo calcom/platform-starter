@@ -1,4 +1,4 @@
-# Cal.com Platform Starter
+# Cal.com Developer SDK Starter
 
 A Next.js template for embedding Cal.com Platform flows in your product, without the `@calcom/atoms` SDK. Every component lives in this repository, so you own the visuals, the markup, and the data layer end-to-end.
 
