@@ -2,7 +2,7 @@
 
 A Next.js template for embedding Cal.com Platform flows in your product, without the `@calcom/atoms` SDK. Every component lives in this repository, so you own the visuals, the markup, and the data layer end-to-end.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fcalcom%2Fplatform-starter&env=CAL_API_KEY,NEXT_PUBLIC_CAL_USERNAME,NEXT_PUBLIC_BRAND_NAME&envDescription=Your%20Cal.com%20API%20key%20and%20default%20username&envLink=https%3A%2F%2Fapp.cal.com%2Fsettings%2Fdeveloper%2Fapi-keys)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fcalcom%2Fdeveloper-starter-kit&env=CAL_API_KEY,NEXT_PUBLIC_CAL_USERNAME,NEXT_PUBLIC_BRAND_NAME&envDescription=Your%20Cal.com%20API%20key%20and%20default%20username&envLink=https%3A%2F%2Fapp.cal.com%2Fsettings%2Fdeveloper%2Fapi-keys)
 
 ## What you get
 

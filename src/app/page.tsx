@@ -18,10 +18,10 @@ import { BookingLookupCard } from "@/features/booking/booking-lookup-card";
 import { getDefaultEventTypeSlug, getDefaultUsername } from "@/lib/cal-api/env";
 import { formatStarCount, getRepoStars } from "@/lib/github";
 
-const REPO_URL = "https://github.com/calcom/platform-starter";
+const REPO_URL = "https://github.com/calcom/developer-starter-kit";
 const FORK_URL = `${REPO_URL}/fork`;
 const DEPLOY_URL =
-  "https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fcalcom%2Fplatform-starter&env=CAL_API_KEY,NEXT_PUBLIC_CAL_USERNAME,NEXT_PUBLIC_BRAND_NAME&envDescription=Your%20Cal.com%20API%20key%20and%20default%20username&envLink=https%3A%2F%2Fapp.cal.com%2Fsettings%2Fdeveloper%2Fapi-keys&project-name=platform-starter&repository-name=platform-starter";
+  "https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fcalcom%2Fdeveloper-starter-kit&env=CAL_API_KEY,NEXT_PUBLIC_CAL_USERNAME,NEXT_PUBLIC_BRAND_NAME&envDescription=Your%20Cal.com%20API%20key%20and%20default%20username&envLink=https%3A%2F%2Fapp.cal.com%2Fsettings%2Fdeveloper%2Fapi-keys&project-name=developer-starter-kit&repository-name=developer-starter-kit";
 
 function VercelIcon({ className }: { className?: string }) {
   return (

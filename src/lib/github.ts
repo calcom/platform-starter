@@ -1,6 +1,6 @@
 import "server-only";
 
-const REPO = "calcom/platform-starter";
+const REPO = "calcom/developer-starter-kit";
 
 export async function getRepoStars(): Promise<number | null> {
   try {
