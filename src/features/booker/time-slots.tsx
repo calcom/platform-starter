@@ -38,7 +38,10 @@ export function TimeSlots({
   }
 
   return (
-    <div className="flex h-full min-h-[420px] flex-col gap-4 p-6 sm:px-6 sm:py-4">
+    <div
+      className="flex min-h-[420px] flex-col gap-4 p-6 sm:px-6 sm:py-4"
+      style={{ maxHeight: "560px" }}
+    >
       <header className="flex items-baseline justify-between">
         <h2 className="text-sm font-semibold tracking-tight">
           {formatInTimeZone(selectedDate, timeZone, "EEE d MMM")}
@@ -57,7 +60,7 @@ export function TimeSlots({
       ) : slots.length === 0 ? (
         <EmptyState />
       ) : (
-        <div className="flex flex-col gap-2 overflow-y-auto pr-1">
+        <div className="-mr-2 flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pr-2">
           {slots.map((slot) => {
             const isSelected = selectedSlot?.start === slot.start;
             return (

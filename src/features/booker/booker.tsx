@@ -3,9 +3,8 @@
 import { useEffect, useMemo, useState, useTransition } from "react";
 
 import { Separator } from "@/components/ui/separator";
-import type { AvailableSlots, Booking, Slot } from "@/lib/cal-api/types";
+import type { AvailableSlots, Slot } from "@/lib/cal-api/types";
 import { fetchSlotsAction } from "./actions";
-import { BookingConfirmation } from "./booking-confirmation";
 import { BookingForm } from "./booking-form";
 import { DatePicker } from "./date-picker";
 import { EventMeta } from "./event-meta";
@@ -13,12 +12,7 @@ import { TimeSlots } from "./time-slots";
 import type { BookerProps, BookerStep } from "./types";
 import { detectBrowserTimeZone, detectTimeFormat, formatDayKey, getMonthBounds } from "./utils";
 
-export function Booker({
-  eventType,
-  username: _username,
-  rescheduleBookingUid,
-  initialTimeZone,
-}: BookerProps) {
+export function Booker({ eventType, rescheduleBookingUid, initialTimeZone }: BookerProps) {
   const [step, setStep] = useState<BookerStep>("select_date");
   const [timeZone, setTimeZone] = useState(initialTimeZone ?? "UTC");
   const [timeFormat, setTimeFormat] = useState<"12h" | "24h">("24h");
@@ -26,7 +20,6 @@ export function Booker({
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const [slotsByDay, setSlotsByDay] = useState<AvailableSlots>({});
-  const [confirmedBooking, setConfirmedBooking] = useState<Booking | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoadingSlots, startSlotsTransition] = useTransition();
 
@@ -72,23 +65,6 @@ export function Booker({
     setSelectedSlot(null);
   }
 
-  if (step === "confirmation" && confirmedBooking) {
-    return (
-      <div
-        key="step-confirmation"
-        className="step-enter mx-auto grid max-w-3xl overflow-hidden rounded-2xl border bg-card shadow-sm"
-      >
-        <BookingConfirmation
-          booking={confirmedBooking}
-          timeZone={timeZone}
-          timeFormat={timeFormat}
-          username={confirmedBooking.hosts[0]?.username}
-          eventTypeSlug={confirmedBooking.eventType?.slug ?? eventType.slug}
-        />
-      </div>
-    );
-  }
-
   if (step === "attendee_form" && selectedSlot) {
     return (
       <div
@@ -111,10 +87,6 @@ export function Booker({
           timeZone={timeZone}
           rescheduleBookingUid={rescheduleBookingUid}
           onCancel={resetToDateStep}
-          onConfirmed={(booking) => {
-            setConfirmedBooking(booking);
-            setStep("confirmation");
-          }}
         />
       </div>
     );

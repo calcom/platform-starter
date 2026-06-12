@@ -35,6 +35,14 @@ export type EventTypeOwner = {
   darkBrandColor?: string | null;
 };
 
+export type EventTypeTeam = {
+  id: number;
+  slug: string;
+  name: string;
+  bannerUrl?: string | null;
+  logoUrl?: string | null;
+};
+
 export type EventType = {
   id: number;
   slug: string;
@@ -48,6 +56,8 @@ export type EventType = {
   requiresConfirmation?: boolean;
   isInstantEvent?: boolean;
   ownerId?: number;
+  teamId?: number;
+  team?: EventTypeTeam;
   users?: EventTypeOwner[];
   hosts?: EventTypeOwner[];
   metadata?: Record<string, unknown>;

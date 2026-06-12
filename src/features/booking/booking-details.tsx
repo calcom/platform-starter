@@ -1,9 +1,11 @@
 import { formatInTimeZone } from "date-fns-tz";
 import {
+  CalendarCheckIcon,
   CalendarIcon,
   CheckCircle2Icon,
   ClockIcon,
   GlobeIcon,
+  MapPinIcon,
   UserIcon,
   XCircleIcon,
 } from "lucide-react";
@@ -18,75 +20,120 @@ import { CancelBookingDialog } from "./cancel-booking-dialog";
 
 type BookingDetailsProps = {
   booking: Booking;
+  isFresh?: boolean;
+  previousStart?: string | null;
+  rescheduleHref?: string | null;
 };
 
-export function BookingDetails({ booking }: BookingDetailsProps) {
+export function BookingDetails({
+  booking,
+  isFresh = false,
+  previousStart = null,
+  rescheduleHref = null,
+}: BookingDetailsProps) {
   const isCancelled = booking.status === "cancelled" || booking.status === "rejected";
   const isPending = booking.status === "pending" || booking.status === "awaiting_host";
   const attendee = booking.attendees[0];
   const host = booking.hosts[0];
   const timeZone = attendee?.timeZone ?? "UTC";
   const formatPattern = "EEE, MMM d · HH:mm";
-
-  const rescheduleHref =
-    host?.username && booking.eventType?.slug
-      ? `/book/${host.username}/${booking.eventType.slug}?rescheduleUid=${booking.uid}`
-      : null;
+  const location = booking.meetingUrl || booking.location || null;
 
   return (
-    <Card className="mx-auto max-w-2xl">
-      <CardHeader>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <StatusBadge status={booking.status} />
-        </div>
-        <CardTitle className="text-2xl">{booking.title}</CardTitle>
-      </CardHeader>
-      <Separator />
-      <CardContent className="space-y-6 pt-6">
-        <dl className="grid gap-4 sm:grid-cols-2">
-          <Field icon={<CalendarIcon className="size-4" />} label="When">
-            {formatInTimeZone(new Date(booking.start), timeZone, formatPattern)}
-          </Field>
-          <Field icon={<ClockIcon className="size-4" />} label="Duration">
-            {booking.duration} minutes
-          </Field>
-          {host ? (
-            <Field icon={<UserIcon className="size-4" />} label="Host">
-              {host.name}
-            </Field>
-          ) : null}
-          <Field icon={<GlobeIcon className="size-4" />} label="Timezone">
-            {timeZone}
-          </Field>
-        </dl>
-
-        {booking.location ? (
-          <div className="rounded-lg border bg-muted/40 p-4 text-sm">
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              Location
+    <div className="mx-auto flex max-w-2xl flex-col gap-6">
+      {isFresh && !isCancelled ? (
+        <div className="flex flex-col items-center gap-3 rounded-2xl border bg-card p-8 text-center shadow-sm">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emphasis text-foreground">
+            <CalendarCheckIcon className="size-7" />
+          </div>
+          <div className="space-y-1">
+            <h1 className="text-2xl font-semibold tracking-tight">
+              {isPending ? "Almost there" : "You're booked"}
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {isPending
+                ? "The host needs to confirm. You'll get an email update."
+                : `We sent a confirmation to ${attendee?.email ?? "your email"}.`}
             </p>
-            <p className="mt-1 break-all font-medium">{booking.location}</p>
           </div>
-        ) : null}
+        </div>
+      ) : null}
 
-        {!isCancelled ? (
-          <div className="flex flex-wrap items-center gap-2">
-            {rescheduleHref ? (
-              <Button asChild variant="outline">
-                <Link href={rescheduleHref}>Reschedule</Link>
-              </Button>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <StatusBadge status={booking.status} />
+          </div>
+          <CardTitle className="text-2xl">{booking.title}</CardTitle>
+        </CardHeader>
+        <Separator />
+        <CardContent className="space-y-6 pt-6">
+          <dl className="grid gap-4 sm:grid-cols-2">
+            <Field icon={<CalendarIcon className="size-4" />} label="When">
+              {previousStart ? (
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-xs text-muted-foreground line-through">
+                    {formatInTimeZone(new Date(previousStart), timeZone, formatPattern)}
+                  </span>
+                  <span>{formatInTimeZone(new Date(booking.start), timeZone, formatPattern)}</span>
+                </div>
+              ) : (
+                formatInTimeZone(new Date(booking.start), timeZone, formatPattern)
+              )}
+            </Field>
+            <Field icon={<ClockIcon className="size-4" />} label="Duration">
+              {booking.duration} minutes
+            </Field>
+            {host ? (
+              <Field icon={<UserIcon className="size-4" />} label="Host">
+                {host.name}
+              </Field>
             ) : null}
-            <CancelBookingDialog bookingUid={booking.uid} />
-          </div>
-        ) : (
-          <p className="text-sm text-muted-foreground">This booking is no longer active.</p>
-        )}
+            <Field icon={<GlobeIcon className="size-4" />} label="Timezone">
+              {timeZone}
+            </Field>
+          </dl>
 
-        {isPending ? (
-          <p className="text-sm text-muted-foreground">Waiting for the host to confirm.</p>
-        ) : null}
-      </CardContent>
-    </Card>
+          {location ? (
+            <div className="rounded-lg border bg-muted/40 p-4 text-sm">
+              <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                <MapPinIcon className="size-3.5" />
+                Where
+              </p>
+              {location.startsWith("http") ? (
+                <a
+                  href={location}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-1 block break-all font-medium underline-offset-4 hover:underline"
+                >
+                  {location}
+                </a>
+              ) : (
+                <p className="mt-1 break-all font-medium">{location}</p>
+              )}
+            </div>
+          ) : null}
+
+          {!isCancelled ? (
+            <div className="flex items-stretch gap-2">
+              {rescheduleHref ? (
+                <Button asChild variant="outline" className="flex-1">
+                  <Link href={rescheduleHref}>Reschedule</Link>
+                </Button>
+              ) : null}
+              <CancelBookingDialog bookingUid={booking.uid} triggerClassName="flex-1" />
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">This booking is no longer active.</p>
+          )}
+
+          {isPending && !isFresh ? (
+            <p className="text-sm text-muted-foreground">Waiting for the host to confirm.</p>
+          ) : null}
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 

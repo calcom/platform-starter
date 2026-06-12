@@ -23,9 +23,14 @@ import { cancelBookingAction } from "./actions";
 type Props = {
   bookingUid: string;
   triggerLabel?: string;
+  triggerClassName?: string;
 };
 
-export function CancelBookingDialog({ bookingUid, triggerLabel = "Cancel booking" }: Props) {
+export function CancelBookingDialog({
+  bookingUid,
+  triggerLabel = "Cancel booking",
+  triggerClassName,
+}: Props) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
@@ -47,7 +52,9 @@ export function CancelBookingDialog({ bookingUid, triggerLabel = "Cancel booking
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="destructive">{triggerLabel}</Button>
+        <Button variant="destructive" className={triggerClassName}>
+          {triggerLabel}
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

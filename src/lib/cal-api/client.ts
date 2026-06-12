@@ -10,6 +10,8 @@ type RequestOptions = {
   apiVersion?: string;
   cache?: RequestCache;
   next?: { revalidate?: number; tags?: string[] };
+  /** How many times to retry on 429/503. Defaults to 2 for GETs, 0 for writes. */
+  retries?: number;
 };
 
 export class CalApiError extends Error {
@@ -37,9 +39,16 @@ function buildQuery(query?: RequestOptions["query"]): string {
   return str ? `?${str}` : "";
 }
 
+function sleep(ms: number) {
+  return new Promise<void>((resolve) => setTimeout(resolve, ms));
+}
+
 export async function calApi<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { apiKey, apiUrl, apiVersion } = getCalApiConfig();
   const url = `${apiUrl}${path}${buildQuery(options.query)}`;
+  const method = options.method ?? "GET";
+  const isIdempotent = method === "GET";
+  const maxRetries = options.retries ?? (isIdempotent ? 2 : 0);
 
   const headers: Record<string, string> = {
     Authorization: `Bearer ${apiKey}`,
@@ -50,37 +59,59 @@ export async function calApi<T>(path: string, options: RequestOptions = {}): Pro
     headers["Content-Type"] = "application/json";
   }
 
-  const response = await fetch(url, {
-    method: options.method ?? "GET",
-    headers,
-    body: options.body === undefined ? undefined : JSON.stringify(options.body),
-    cache: options.cache,
-    next: options.next,
-  });
+  let lastError: CalApiError | null = null;
 
-  let payload: ApiResponse<T> | undefined;
-  try {
-    payload = (await response.json()) as ApiResponse<T>;
-  } catch {
-    if (!response.ok) {
-      throw new CalApiError(
-        `Cal.com API ${response.status} ${response.statusText}`,
-        "UNKNOWN",
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    const response = await fetch(url, {
+      method,
+      headers,
+      body: options.body === undefined ? undefined : JSON.stringify(options.body),
+      cache: options.cache,
+      next: options.next,
+    });
+
+    let payload: ApiResponse<T> | undefined;
+    try {
+      payload = (await response.json()) as ApiResponse<T>;
+    } catch {
+      if (!response.ok) {
+        lastError = new CalApiError(
+          `Cal.com API ${response.status} ${response.statusText}`,
+          "UNKNOWN",
+          response.status,
+        );
+      } else {
+        throw new CalApiError("Cal.com API returned no body", "EMPTY_BODY", 500);
+      }
+    }
+
+    if (payload && response.ok && payload.status === "success") {
+      return payload.data;
+    }
+
+    if (!lastError) {
+      const err = payload?.status === "error" ? payload.error : undefined;
+      lastError = new CalApiError(
+        err?.message ?? `Cal.com API ${response.status}`,
+        err?.code ?? `HTTP_${response.status}`,
         response.status,
+        err?.details,
       );
     }
-    throw new CalApiError("Cal.com API returned no body", "EMPTY_BODY", 500);
+
+    const shouldRetry =
+      attempt < maxRetries && (lastError.status === 429 || lastError.status === 503);
+    if (!shouldRetry) break;
+
+    const retryAfter = Number(response.headers.get("retry-after"));
+    const backoffMs =
+      Number.isFinite(retryAfter) && retryAfter > 0
+        ? Math.min(retryAfter * 1000, 5000)
+        : 400 * 2 ** attempt + Math.floor(Math.random() * 200);
+
+    await sleep(backoffMs);
+    lastError = null;
   }
 
-  if (!response.ok || payload.status === "error") {
-    const err = payload.status === "error" ? payload.error : undefined;
-    throw new CalApiError(
-      err?.message ?? `Cal.com API ${response.status}`,
-      err?.code ?? `HTTP_${response.status}`,
-      response.status,
-      err?.details,
-    );
-  }
-
-  return payload.data;
+  throw lastError ?? new CalApiError("Cal.com API request failed", "UNKNOWN", 500);
 }
